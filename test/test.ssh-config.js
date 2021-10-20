@@ -237,7 +237,7 @@ describe('SSHConfig', function() {
     })
   })
 
-  it('.append with newline insersion', function() {
+  it('.append with newline insertion', function() {
     const config = SSHConfig.parse(heredoc(function() {/*
       Host test
         HostName google.com*/}))

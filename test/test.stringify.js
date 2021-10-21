@@ -63,7 +63,7 @@ describe('stringify', function() {
     */}))
 
     assert.equal(stringify(config), heredoc(function() {/*
-      Host foo bar baz "egg ham"
+      Host foo bar "baz" "egg ham"
         HostName example.com
     */}))
   })
@@ -124,7 +124,7 @@ describe('stringify', function() {
   it('.stringify IdentityFile with spaces', function() {
     const config = new SSHConfig().append({
       Host: 'foo',
-      IdentityFile: 'C:\\Users\\John Doe\\.ssh\\id_rsa'
+      IdentityFile: '"C:\\Users\\John Doe\\.ssh\\id_rsa"'
     })
 
     assert.equal(stringify(config), heredoc(function() {/*

@@ -36,7 +36,13 @@ describe('SSHConfig', function() {
       IdentityFile: [
         '~/.ssh/id_rsa'
       ],
-      ProxyCommand: 'ssh -q gateway -W %h:%p',
+      ProxyCommand: [
+        'ssh', 
+        '-q',
+        'gateway', 
+        '-W', 
+        '%h:%p'
+      ],
       ServerAliveInterval: '80',
       User: 'nil',
       ForwardAgent: 'true'
@@ -64,9 +70,9 @@ describe('SSHConfig', function() {
         User robb
     */}))
 
-    for (const host of ['foo', 'foo.bar', 'baz ham']) {
+    for (const host of ['foo', '\"foo.bar\"', '\"baz ham\"']) {
       assert.deepEqual(config.compute(host), {
-        Host: ['foo', '*.bar', 'baz ham'],
+        Host: ['foo', '\"*.bar\"', '\"baz ham\"'],
         HostName: 'example.com',
         User: 'robb'
       })
@@ -469,7 +475,6 @@ describe('SSHConfig', function() {
       User: 'brian'
     })
 
-    console.log(config.toString())
     assert.equal(config.toString(), heredoc(function() {/*
       HostName example.com
       User brian

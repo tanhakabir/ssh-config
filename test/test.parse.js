@@ -127,19 +127,38 @@ describe('parse', function() {
     assert.equal(config[0].value, 'C:\\Users\\John Doe\\.ssh\\id_rsa')
 
     assert.equal(config[1].param, 'IdentityFile')
-    assert.equal(config[1].value, 'C:\\Users\\John Doe\\.ssh\\id_rsa')
+    assert.equal(config[1].value, '"C:\\Users\\John Doe\\.ssh\\id_rsa"')
   })
 
   it('.parse quoted values with escaped double quotes', function() {
     const config = parse('IdentityFile "C:\\Users\\John\\" Doe\\.ssh\\id_rsa"')
     assert.equal(config[0].param, 'IdentityFile')
-    assert.equal(config[0].value, 'C:\\Users\\John" Doe\\.ssh\\id_rsa')
+    assert.equal(config[0].value, '"C:\\Users\\John" Doe\\.ssh\\id_rsa"')
+  })
+
+  it('.parse quoted multiple args', function() {
+    const config = parse(heredoc(function() {/*
+      Host foo
+        ProxyCommand "C:\foo bar\baz.exe" "arg" "arg" "arg"
+    */}))
+    assert.equal(config[0].config[0].param, 'ProxyCommand')
+    assert.deepEqual(config[0].config[0].value, [
+      '"C:\\foo bar\\baz.exe"', 
+      '"arg"', 
+      '"arg"', 
+      '"arg"'
+    ])
   })
 
   it('.parse unquoted values that contain double quotes', function() {
     const config = parse('ProxyCommand ssh -W "%h:%p" firewall.example.org')
     assert.equal(config[0].param, 'ProxyCommand')
-    assert.equal(config[0].value, 'ssh -W "%h:%p" firewall.example.org')
+    assert.deepEqual(config[0].value, [
+      'ssh', 
+      '-W', 
+      '"%h:%p"', 
+      'firewall.example.org'
+    ])
   })
 
   it('.parse open ended values', function() {
@@ -151,7 +170,7 @@ describe('parse', function() {
   it('.parse Host with quoted hosts that contain spaces', function() {
     const config = parse('Host "foo bar"')
     assert.equal(config[0].param, 'Host')
-    assert.equal(config[0].value, 'foo bar')
+    assert.equal(config[0].value, '"foo bar"')
   })
 
   it('.parse Host with multiple patterns', function() {
@@ -160,9 +179,9 @@ describe('parse', function() {
     assert.equal(config[0].param, 'Host')
     assert.deepEqual(config[0].value, [
       'foo',
-      '!*.bar',
-      'baz ham',
-      'foo"bar'
+      '"!*.bar"',
+      '"baz ham"',
+      '"foo\"bar"'
     ])
   })
 
@@ -174,7 +193,7 @@ describe('parse', function() {
       'local',
       'wi*ldcard?',
       'thisVM',
-      'two words'
+      '"two words"'
     ])
   })
 
